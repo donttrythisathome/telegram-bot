@@ -3,11 +3,12 @@
 namespace Dtth\TelegramBot;
 
 use Dtth\TelegramBot\Bot;
+use Dtth\TelegramBot\Contracts\ClientInterface;
+use Dtth\TelegramBot\Contracts\CommandInterface;
 use Dtth\TelegramBot\Result;
 use GuzzleHttp\Client as HttpClient;
-use Dtth\TelegramBot\Commands\Command;
 
-class Client
+class Client implements ClientInterface
 {
     protected $httpClient;
 
@@ -26,16 +27,17 @@ class Client
      *
      * @return mixed
      */
-    public function executeCommand(Command $command)
+    public function executeCommand(CommandInterface $command)
     {
-        $url = $command->getUrl();
-        $method = $command->getHttpMethod();
-        $body = $command->getArg();
-        $res = $this->httpClient->request($method, $url,[
-            'json' => $body
-        ]);
+        $res = $this->httpClient->request(
+            $command->getHttpMethod(),
+            $command->getUri(),
+            $command->getOptions()
+        );
 
-        return $this->newResult($res,$command);
+        return tap($this->newResult($res,$command), function($result){
+            $result->parse();
+        });
     }
 
     /**

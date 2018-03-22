@@ -6,15 +6,24 @@ class Result
 {
     /**
      * Raw result.
+     *
      * @var \GuzzleHttp\Psr7\Response
      */
     protected $raw;
 
     /**
      * Command.
+     *
      * @var \Dtth\TelegramBot\Commands\Command
      */
     protected $command;
+
+    /**
+     * Parsed result.
+     *
+     * @var mixed
+     */
+    protected $parsed;
 
     /**
      * Creates a new result instance.
@@ -34,7 +43,17 @@ class Result
      */
     public function parse()
     {
-        return $this->command->parseResult($this);
+        $this->parsed = $this->command->parseResult($this);
+    }
+
+    /**
+     * Get parsed result.
+     *
+     * @return mixed
+     */
+    public function parsed()
+    {
+        return $this->parsed;
     }
 
     /**

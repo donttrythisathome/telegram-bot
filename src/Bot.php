@@ -2,7 +2,10 @@
 
 namespace Dtth\TelegramBot;
 
-class Bot
+use Dtth\TelegramBot\Invoker;
+use Dtth\TelegramBot\Contracts\BotInterface;
+
+class Bot implements BotInterface
 {
     protected $attributes = [];
     /**
@@ -19,9 +22,9 @@ class Bot
     }
 
     /**
+     * Fill bot instance with given attributes.
      *
-     *
-     * @return
+     * @return $this
      */
     public function fill($attributes = [])
     {
@@ -33,19 +36,19 @@ class Bot
     }
 
     /**
+     * Convert bot to json.
      *
-     *
-     * @return
+     * @return string
      */
     public function toJson()
     {
-        return json_encode($this->attributes);
+        return json_encode($this->toArray());
     }
 
     /**
+     * Convert bot to array.
      *
-     *
-     * @return
+     * @return array
      */
     public function toArray()
     {
@@ -57,7 +60,7 @@ class Bot
      *
      * @return string
      */
-    public function getUrlTemplate()
+    public function getUriTemplate()
     {
         return str_replace('<token>', $this->token, $this->urlTemplate);
     }
@@ -67,9 +70,9 @@ class Bot
      *
      * @return \Dtth\TelegramBot\RequestBuilder
      */
-    public function newRequestBuilder()
+    public function newInvoker()
     {
-        return new RequestBuilder($this);
+        return new Invoker($this);
     }
 
     /**
@@ -79,13 +82,13 @@ class Bot
      */
     public function __call($command, $arguments)
     {
-        return $this->newRequestBuilder()->command($command,$arguments);
+        return $this->newInvoker()->command($command,$arguments);
     }
 
     /**
+     * Bot dynamic getter.
      *
-     *
-     * @return
+     * @return mixed
      */
     public function __get($key)
     {
@@ -99,12 +102,14 @@ class Bot
     }
 
     /**
+     * Bot dynamic setter.
      *
-     *
-     * @return
+     * @return $this
      */
     public function __set($key, $value)
     {
         $this->attributes[$key] = $value;
+
+        return $this;
     }
 }

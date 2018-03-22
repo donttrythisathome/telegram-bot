@@ -2,9 +2,10 @@
 
 namespace Dtth\TelegramBot\Commands;
 
-class SendMessage extends Command
+class SendMessage extends AbstractCommand
 {
     protected $httpMethod = 'POST';
+
     /**
      * Parse command result.
      *
@@ -12,6 +13,17 @@ class SendMessage extends Command
      */
     public function parseResult($result)
     {
-
+        //
+    }
+    /**
+     *
+     *
+     * @return
+     */
+    public function getOptions()
+    {
+        return [
+            'json'=>$this->arguments
+        ];
     }
 }

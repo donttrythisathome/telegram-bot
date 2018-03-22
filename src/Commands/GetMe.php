@@ -2,7 +2,7 @@
 
 namespace Dtth\TelegramBot\Commands;
 
-class GetMe extends Command
+class GetMe extends AbstractCommand
 {
     /**
      * Parse command result.
@@ -14,6 +14,6 @@ class GetMe extends Command
         $json = $result->toString();
         $data = json_decode($json,true);
 
-        return $this->getBot()->fill($data['result']);
+        return $this->bot->fill($data['result']);
     }
 }

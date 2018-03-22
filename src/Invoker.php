@@ -2,12 +2,23 @@
 
 namespace Dtth\TelegramBot;
 
-use Dtth\TelegramBot\Bot;
 use Dtth\TelegramBot\ClientInterface;
+use Dtth\TelegramBot\Contracts\BotInterface;
 
-class RequestBuilder
+class Invoker
 {
+    /**
+     * Bot instance
+     *
+     * @var Dtth\TelegramBot\Contracts\BotInterface
+     */
     protected $bot;
+
+    /**
+     * Default commands
+     *
+     * @var array
+     */
     protected static $commands = [
         'getMe' => \Dtth\TelegramBot\Commands\GetMe::class,
         'getUpdates'=>\Dtth\TelegramBot\Commands\GetUpdates::class,
@@ -15,11 +26,11 @@ class RequestBuilder
     ];
 
     /**
-     *
+     * Creates a new invoker instance.
      *
      * @return void
      */
-    public function __construct(Bot $bot)
+    public function __construct(BotInterface $bot)
     {
         $this->bot = $bot;
     }
@@ -31,9 +42,10 @@ class RequestBuilder
      */
     public function command($command, $arguments)
     {
-        array_unshift($arguments, $this->bot);
-
-        return $this->resolveCommand($command)->execute($arguments);
+        return $this->resolveCommand($command)
+            ->setBot($this->bot)
+            ->setArguments(...$arguments)
+            ->execute();
     }
 
     /**
