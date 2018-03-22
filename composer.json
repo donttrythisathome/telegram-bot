@@ -1,0 +1,18 @@
+{
+    "name": "donttrythisathome/telegram-bot",
+    "description": "The framework to create telegram bots",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Constantine Derkach",
+            "email": "kosderkach@gmail.com"
+        }
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "~5.3|~6.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dtth\\TelegramBot\\": "src/"
+    }
+}
