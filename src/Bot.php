@@ -3,11 +3,15 @@
 namespace Dtth\TelegramBot;
 
 use Dtth\TelegramBot\Invoker;
+use Dtth\TelegramBot\Models\Update;
+use Dtth\TelegramBot\Models\AbstractModel;
 use Dtth\TelegramBot\Contracts\BotInterface;
 
-class Bot implements BotInterface
+class Bot extends AbstractModel implements BotInterface
 {
-    protected $attributes = [];
+    protected $relations = [
+        'update'=>Update::class
+    ];
     /**
      * Creates a new bot instance.
      *
@@ -15,44 +19,20 @@ class Bot implements BotInterface
      */
     public function __construct(string $token,string $urlTemplate)
     {
-        $this->fill([
+        parent::__construct([
             'token'=>$token,
             'urlTemplate'=>$urlTemplate
         ]);
     }
 
     /**
-     * Fill bot instance with given attributes.
      *
-     * @return $this
-     */
-    public function fill($attributes = [])
-    {
-        foreach ($attributes as $key => $value) {
-            $this->$key = $value;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Convert bot to json.
      *
-     * @return string
+     * @return
      */
-    public function toJson()
+    public function update()
     {
-        return json_encode($this->toArray());
-    }
-
-    /**
-     * Convert bot to array.
-     *
-     * @return array
-     */
-    public function toArray()
-    {
-        return $this->attributes;
+        return $this->update;
     }
 
     /**
@@ -83,33 +63,5 @@ class Bot implements BotInterface
     public function __call($command, $arguments)
     {
         return $this->newInvoker()->command($command,$arguments);
-    }
-
-    /**
-     * Bot dynamic getter.
-     *
-     * @return mixed
-     */
-    public function __get($key)
-    {
-        if (!$key){
-            return;
-        }
-
-        if (array_key_exists($key, $this->attributes)){
-            return $this->attributes[$key];
-        }
-    }
-
-    /**
-     * Bot dynamic setter.
-     *
-     * @return $this
-     */
-    public function __set($key, $value)
-    {
-        $this->attributes[$key] = $value;
-
-        return $this;
     }
 }

@@ -62,7 +62,7 @@ abstract class AbstractCommand implements CommandInterface
      *
      * @return array
      */
-    public function setArguments($arguments)
+    public function setArguments($arguments = [])
     {
         $this->arguments = $arguments;
 

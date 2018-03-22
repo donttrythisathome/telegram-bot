@@ -3,9 +3,10 @@
 namespace Dtth\TelegramBot\Models;
 
 use ArrayAccess;
-use JsonSerializable;
-use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
+use Illuminate\Support\Collection;
+use JsonSerializable;
 
 Abstract class AbstractModel implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
 {
@@ -141,5 +142,57 @@ Abstract class AbstractModel implements ArrayAccess, Arrayable, Jsonable, JsonSe
         $this->setAttribute($key,$value);
 
         return $this;
+    }
+
+    /**
+     * Handle dynamic static method calls into the method.
+     *
+     * @return mixed
+     */
+    public static function __callStatic($method,$attributes)
+    {
+        return (new static)->{$method}(...$attributes);
+    }
+
+    /**
+     *
+     *
+     * @return
+     */
+    public function __call($method, $attributes)
+    {
+        return $this->newBuilder($this)->{$method}(...$attributes);
+    }
+
+    /**
+     * Get a new builder instance.
+     *
+     * @return
+     */
+    public function newBuilder()
+    {
+        return new Builder($this);
+    }
+
+    /**
+     * Create a new Collection instance.
+     *
+     * @param  array  $models
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function newCollection(array $models = [])
+    {
+        return new Collection($models);
+    }
+
+    /**
+     * Create a new instance of the given model.
+     *
+     * @param  array  $attributes
+     * @return static
+     */
+    public function newInstance($attributes = [])
+    {
+        return new static($attributes);
     }
 }

@@ -34,9 +34,13 @@ class TelegramBotServiceProvider extends ServiceProvider
     {
         $this->registerBot();
 
-        $this->app->resolving('telegram_bot',function($bot){
+        $this->app->resolving('telegram_bot',function($bot,$app){
             if ($this->refreshInfoWhenResolving){
                 $bot->getMe()->parse();
+            }
+            if (!$app->runningInConsole() && $app->make('request')->route()->named('bot_update')){
+                $request = $app->make('request');
+                $bot->fill(['update'=>$request->all()]);
             }
         });
     }

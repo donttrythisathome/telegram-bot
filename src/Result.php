@@ -57,6 +57,16 @@ class Result
     }
 
     /**
+     *
+     *
+     * @return
+     */
+    public function toArray()
+    {
+        return json_decode($this->toString(),true)['result'];
+    }
+
+    /**
      * Convert result to string.
      *
      * @return string

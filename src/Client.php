@@ -34,7 +34,6 @@ class Client implements ClientInterface
             $command->getUri(),
             $command->getOptions()
         );
-
         return tap($this->newResult($res,$command), function($result){
             $result->parse();
         });

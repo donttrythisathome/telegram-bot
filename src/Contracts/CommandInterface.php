@@ -32,7 +32,7 @@ interface CommandInterface
      *
      * @return array
      */
-    public function setArguments($arguments);
+    public function setArguments($arguments = []);
 
     /**
      * Get command method url.

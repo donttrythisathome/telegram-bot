@@ -2,6 +2,8 @@
 
 namespace Dtth\TelegramBot\Commands;
 
+use Dtth\TelegramBot\Models\Update;
+
 class GetUpdates extends AbstractCommand
 {
 
@@ -12,6 +14,6 @@ class GetUpdates extends AbstractCommand
      */
     public function parseResult($result)
     {
-
+        return Update::hydrate($result->toArray());
     }
 }
