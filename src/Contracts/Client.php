@@ -2,12 +2,14 @@
 
 namespace Dtth\TelegramBot\Contracts;
 
-interface ClientInterface
+use Dtth\TelegramBot\Commands\Command;
+
+interface Client
 {
     /**
      * Execute API method
      *
      * @return mixed
      */
-    public function executeCommand(CommandInterface $command);
+    public function executeCommand(Command $command);
 }

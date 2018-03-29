@@ -3,10 +3,10 @@
 namespace Dtth\TelegramBot\Models;
 
 use ArrayAccess;
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Contracts\Support\Jsonable;
-use Illuminate\Support\Collection;
 use JsonSerializable;
+use Illuminate\Support\Collection;
+use Illuminate\Contracts\Support\Jsonable;
+use Illuminate\Contracts\Support\Arrayable;
 
 Abstract class AbstractModel implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
 {
@@ -161,13 +161,13 @@ Abstract class AbstractModel implements ArrayAccess, Arrayable, Jsonable, JsonSe
      */
     public function __call($method, $attributes)
     {
-        return $this->newBuilder($this)->{$method}(...$attributes);
+        return $this->newBuilder()->{$method}(...$attributes);
     }
 
     /**
      * Get a new builder instance.
      *
-     * @return
+     * @return \Dtth\TelegramBot\Models\Builder
      */
     public function newBuilder()
     {
@@ -178,7 +178,7 @@ Abstract class AbstractModel implements ArrayAccess, Arrayable, Jsonable, JsonSe
      * Create a new Collection instance.
      *
      * @param  array  $models
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Support\Collection
      */
     public function newCollection(array $models = [])
     {

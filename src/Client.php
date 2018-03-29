@@ -2,11 +2,9 @@
 
 namespace Dtth\TelegramBot;
 
-use Dtth\TelegramBot\Bot;
-use Dtth\TelegramBot\Contracts\ClientInterface;
-use Dtth\TelegramBot\Contracts\CommandInterface;
-use Dtth\TelegramBot\Result;
-use GuzzleHttp\Client as HttpClient;
+use Dtth\TelegramBot\Commands\Command;
+use GuzzleHttp\ClientInterface as HttpClientInterface;
+use Dtth\TelegramBot\Contracts\Client as ClientInterface;
 
 class Client implements ClientInterface
 {
@@ -17,7 +15,7 @@ class Client implements ClientInterface
      *
      * @return void
      */
-    public function __construct(HttpClient $httpClient)
+    public function __construct(HttpClientInterface $httpClient)
     {
         $this->httpClient = $httpClient;
     }
@@ -27,25 +25,24 @@ class Client implements ClientInterface
      *
      * @return mixed
      */
-    public function executeCommand(CommandInterface $command)
+    public function executeCommand(Command $command)
     {
-        $res = $this->httpClient->request(
+        $result = $this->httpClient->request(
             $command->getHttpMethod(),
-            $command->getUri(),
+            $command->getUrl($command->getToken()),
             $command->getOptions()
         );
-        return tap($this->newResult($res,$command), function($result){
-            $result->parse();
-        });
+
+        return $command->parse($result);
     }
 
     /**
-     * Creates a new result instance
      *
-     * @return Dtth\TelegramBot\Result
+     *
+     * @return string
      */
-    protected function newResult()
+    protected function getUrl(string $token):string
     {
-        return new Result(...func_get_args());
+        return str_replace($this->url,'<token>', $token);
     }
 }

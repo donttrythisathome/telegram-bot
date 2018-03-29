@@ -4,9 +4,8 @@ namespace Dtth\TelegramBot\Commands;
 
 use Dtth\TelegramBot\Models\Update;
 
-class GetUpdates extends AbstractCommand
+class GetUpdates extends Command
 {
-
     /**
      * Parse command result.
      *

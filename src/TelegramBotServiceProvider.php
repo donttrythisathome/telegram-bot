@@ -2,15 +2,11 @@
 
 namespace Dtth\TelegramBot;
 
-use Dtth\TelegramBot\Bot;
-use Dtth\TelegramBot\Client;
+use Dtth\TelebramBot\BotManager;
 use Illuminate\Support\ServiceProvider;
-use Dtth\TelegramBot\Contracts\ClientInterface;
 
 class TelegramBotServiceProvider extends ServiceProvider
 {
-    protected $refreshInfoWhenResolving = false;
-
     /**
      * Bootstrap the telegram bot service.
      *
@@ -18,11 +14,7 @@ class TelegramBotServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->publishes([
-            __DIR__.'/../config/config.php' => config_path('telegram_bot.php'),
-        ]);
-
-        $this->loadRoutesFrom(__DIR__.'/../routes/webhook.php');
+        //
     }
 
     /**
@@ -32,31 +24,20 @@ class TelegramBotServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->registerBot();
-
-        $this->app->resolving('telegram_bot',function($bot,$app){
-            if ($this->refreshInfoWhenResolving){
-                $bot->getMe()->parse();
-            }
-            if (!$app->runningInConsole() && $app->make('request')->route()->named('bot_update')){
-                $request = $app->make('request');
-                $bot->fill(['update'=>$request->all()]);
-            }
-        });
+        $this->registerBotManager();
     }
 
     /**
-     * Register bot
+     * Register the bot manager
      *
-     * @return void
+     * @return \Dtth\TelegramBot\Contracts\BotManager
      */
-    protected function registerBot()
+    protected function registerBotManager()
     {
         $this->app->singleton('telegram_bot',function($app){
-            $token = $app->config['telegram_bot']['token'];
-            $pattern = $app->config['telegram_bot']['telegram_bot_api_pattern'];
+            $config = $app->config['telegram_bot'];
 
-            return new Bot($token, $pattern);
+            return new BotManager($config);
         });
     }
 }
