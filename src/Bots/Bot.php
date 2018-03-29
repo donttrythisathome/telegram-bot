@@ -73,6 +73,16 @@ abstract class Bot
     }
 
     /**
+     *
+     *
+     * @return
+     */
+    public function test()
+    {
+        return "hello";
+    }
+
+    /**
      * The sendMessage command.
      *
      * @return \Dtth\TelegramBot\Models\Model

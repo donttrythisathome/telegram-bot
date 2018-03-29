@@ -2,7 +2,9 @@
 
 namespace Dtth\TelegramBot;
 
-use Dtth\TelebramBot\BotManager;
+use GuzzleHttp\Client;
+use Dtth\TelegramBot\Bots\Bot;
+use Dtth\TelegramBot\BotManager;
 use Illuminate\Support\ServiceProvider;
 
 class TelegramBotServiceProvider extends ServiceProvider
@@ -14,30 +16,41 @@ class TelegramBotServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        //Here you can register your own bot commands
     }
 
     /**
-     * Register the telegram bot service
+     * Register the telegram bot service.
      *
      * @return void
      */
     public function register()
     {
+        $this->registerHttpClient();
         $this->registerBotManager();
     }
 
     /**
-     * Register the bot manager
+     * Register the Http Client.
      *
-     * @return \Dtth\TelegramBot\Contracts\BotManager
+     * @return void
+     */
+    protected function registerHttpClient()
+    {
+        $this->app->bind(Client::class,function(){
+            return new Client;
+        });
+    }
+
+    /**
+     * Register the Bot Manager.
+     *
+     * @return void
      */
     protected function registerBotManager()
     {
         $this->app->singleton('telegram_bot',function($app){
-            $config = $app->config['telegram_bot'];
-
-            return new BotManager($config);
+            return new BotManager($app);
         });
     }
 }

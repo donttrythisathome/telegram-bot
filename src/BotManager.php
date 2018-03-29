@@ -2,9 +2,10 @@
 
 namespace Dtth\TelegramBot;
 
-use Illuminate\Support\Arr;
+use Dtth\TelegramBot\Client;
 use GuzzleHttp\Client as HttpClient;
-use Illuminate\Contracts\Container\Container;
+use Dtth\TelegramBot\Exceptions\BotException;
+use Illuminate\Contracts\Foundation\Application;
 use Dtth\TelegramBot\Contracts\BotManager as BotManagerInterface;
 
 class BotManager implements BotManagerInterface
@@ -17,89 +18,131 @@ class BotManager implements BotManagerInterface
     protected $app;
 
     /**
+     * The array of the created Bots
+     *
+     * @var array
+     */
+    protected $bots = [];
+
+    /**
      * Create a new Bot manager instance.
      *
+     * @param Illuminate\Contracts\Foundation\Application $app
      * @return void
      */
-    public function __construct($app)
+    public function __construct(Application $app)
     {
-        $this->config = $config;
-        $this->update = $update;
+        $this->app = $app;
     }
 
     /**
-     * Get a new bot instance.
+     * Get  the Telegram Bot.
      *
+     * @param string $name
      * @return \Dtth\TelegramBot\Bots\Bot
      */
     public function bot(string $name = null)
     {
-        if (!array_key_exists($name, $this->bots)){
-            $this->bots[$name] = $this->resolveByName($name);
-        }
-
-        return $this->bots[$name];
+        $name = $name ?: $this->config('default');
+        return isset($this->bots[$name])
+            ? $this->bots[$name]
+            : $this->bots[$name] = $this->resolve($name);
     }
 
     /**
-     * Resolve the bot instance by given bot's name.
+     * Resolve the Bot.
      *
-     * @return \Dtth\TelegramBots\Bots\Bot
+     * @param  string $name
+     * @return \Dtth\TelegramBot\Bot
+     *
+     * @throws \Dtth\Bot\Exceptions\BotException
      */
-    protected function resolveByName(string $name = null)
+    protected function resolve(string $name)
     {
-        $name = $name??$this->config['default'];
-        $class = $this->getConfig('bots.'.$name.'.class');
-        $token = $this->getConfig('bots.'.$name.'.token');
-        $baseUrl = $this->getBaseUrl($token);
-        $client = $this->getClient($baseUrl);
+        $config = $this->config("bots.{$name}");
 
-        try{
-            return new $class($client);
-        } catch (\Exception $e){
-            throw BotException::invalidBot();
+        if (is_null($config)) {
+            throw BotException::invalidBotName("Telegram bot [{$name}] is not defined.");
         }
+
+        return $this->createBot($name,$config);
     }
 
     /**
-     * Get config via dot notation.
+     * Create a new Bot instance.
+     *
+     * @param string $name
+     * @param   array $config
+     * @return \Dtth\TelegramBot\Bot
+     */
+    public function createBot(string $name, array $config)
+    {
+        $client = $this->createClient($this->tokenizeUrl($config['token']));
+        return new $config['class']($client);
+    }
+
+    /**
+     * Create a new client instance.
+     *
+     * @param string $baseUrl
+     * @return \Dtth\TelegramBot\Contracts\Client
+     */
+    public function createClient(string $baseUrl)
+    {
+        return new Client($this->app->makeWith(HttpClient::class,['config'=>['base_uri'=>$baseUrl]]));
+    }
+
+    /**
+     * Get the Telegram Bot config.
+     *
+     * @return array
+     */
+    protected function config(string $offset = null)
+    {
+        return $this->app['config']["telegram_bot.{$offset}"];
+    }
+
+    /**
+     * Get the default bot name.
      *
      * @return string
      */
-    protected function getConfig(string $key)
+    public function getDefaultBot()
     {
-        return array_get($this->config, $key);
+        return $this->config('default');
+    }
+
+    /**
+     * Set the default bot.
+     *
+     * @param string $name
+     * @return void
+     */
+    public function setDefaultBot(string $name)
+    {
+        $this->app['config']['telegram_bot.default'] = $name;
     }
 
     /**
      * Merge url with bot's token,
      *
+     * @param string $token
      * @return string
      */
-    public function getBaseUrl(string $token)
+    protected function tokenizeUrl(string $token)
     {
-        return str_replace('<token>', $token, $this->getConfig('url'));
+        return str_replace('<token>', $token, $this->config('url'));
     }
 
     /**
-     * Creates a new client instance.
+     * Dynamically call the default bot instance.
      *
-     * @return \Dtth\TelegramBot\Contracts\Client
-     */
-    protected function getClient(string $baseUrl)
-    {
-        return new Client(new HttpClient(['base_url'=>$baseUrl]));
-    }
-
-    /**
-     * Dynamically handles bot manager methods calls.
-     *
+     * @param  string  $method
+     * @param  array  $parameters
      * @return mixed
      */
-    public function __call($method, $argumrnts)
+    public function __call($method, $parameters)
     {
-        $bot = $this->bot();
-
-        return $bot->{$method}(...$arguments);
+        return $this->bot()->{$method}(...$parameters);
     }
 }
