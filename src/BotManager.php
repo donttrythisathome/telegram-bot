@@ -2,25 +2,26 @@
 
 namespace Dtth\TelegramBot;
 
-use Dtth\TelegramBot\Contracts\BotManager as BotManagerInterface;
-use GuzzleHttp\Client as HttpClient;
 use Illuminate\Support\Arr;
+use GuzzleHttp\Client as HttpClient;
+use Illuminate\Contracts\Container\Container;
+use Dtth\TelegramBot\Contracts\BotManager as BotManagerInterface;
 
 class BotManager implements BotManagerInterface
 {
     /**
-     * Array of bot instances
+     * The application instance.
      *
-     * @var \Dtth\TelegramBot\Bots\Bot
+     * @var \Illuminate\Foundation\Application
      */
-    protected $bots = [];
+    protected $app;
 
     /**
-     * Creates a new bot manager instance.
+     * Create a new Bot manager instance.
      *
      * @return void
      */
-    public function __construct(array $config, Update $update = null)
+    public function __construct($app)
     {
         $this->config = $config;
         $this->update = $update;
